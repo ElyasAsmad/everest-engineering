@@ -1,0 +1,4 @@
+code,discount,distance,weight
+OFR001,10,d < 200, 70 <= w <= 200
+OFR002,7,50 <= d <= 150, 100 <= w <= 250
+OFR003,5,50 <= d <= 250, 10 <= w <= 150
