@@ -8,6 +8,7 @@ import (
 	"slices"
 
 	"github.com/ElyasAsmad/everestengineering2/internal/model"
+	"github.com/ElyasAsmad/everestengineering2/internal/shipping"
 	"github.com/ElyasAsmad/everestengineering2/pkg/combinator"
 	l "github.com/ElyasAsmad/everestengineering2/pkg/logger"
 	"github.com/ElyasAsmad/everestengineering2/pkg/parser"
@@ -119,8 +120,7 @@ func main() {
 
 	// fleet manager
 	shipper := s.NewShipper(noOfVehicles, maxSpeed)
-	deliveryResult := make([]model.DeliveryResult, len(packages))
-	deliveryIdx := 0
+	deliveryResult := make([]model.DeliveryResult, 0)
 
 	// start loop
 	for len(packages) > 0 {
@@ -142,19 +142,10 @@ func main() {
 
 		result := shipper.ProcessShipment(op)
 
-		for i := 0; i < len(*result); i++ {
-			deliveryResult[deliveryIdx] = (*result)[i]
-			deliveryIdx++
-		}
+		deliveryResult = append(deliveryResult, *result...)
 
-		packages = slices.DeleteFunc(packages, func(p model.Package) bool {
-			for _, shippedPkg := range op.Packages {
-				if p.ID == shippedPkg.ID {
-					return true
-				}
-			}
-			return false
-		})
+		// remove shipped packages from original list
+		packages = shipping.FilterOutPackages(packages, op.Packages)
 
 		remainingIDs := make([]string, len(packages))
 		for i, pkg := range packages {
