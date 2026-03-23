@@ -62,12 +62,12 @@ func (s *Shipper) ProcessShipment(shipment *model.PackageBundle) {
 	}
 	longestDistance := 0.0
 
-	logger.Debugf("Shipment assigned to Vehicle %d: Available Time %.2f\n", vehicle.ID, vehicle.AvailableTime)
+	logger.Debugf("Shipment assigned to Vehicle %d: Available Time %.2f", vehicle.ID, vehicle.AvailableTime)
 
 	for _, pkg := range shipment.Packages {
 		deliveryTime := vehicle.AvailableTime + f.Truncate((pkg.DistanceKm/s.maxSpeed), 2)
 
-		logger.Debugf("Delivering %s: (%.2f + %.2f) %.2f hrs\n", pkg.ID, vehicle.AvailableTime, f.Truncate((pkg.DistanceKm/s.maxSpeed), 2), deliveryTime)
+		logger.Debugf("Delivering %s: (%.2f + %.2f) %.2f hrs", pkg.ID, vehicle.AvailableTime, f.Truncate((pkg.DistanceKm/s.maxSpeed), 2), deliveryTime)
 
 		if pkg.DistanceKm > longestDistance {
 			longestDistance = f.Truncate(pkg.DistanceKm, 2)
@@ -79,5 +79,5 @@ func (s *Shipper) ProcessShipment(shipment *model.PackageBundle) {
 
 	vehicle.AvailableTime = vehicle.AvailableTime + roundTripTime
 
-	logger.Debugf("Vehicle %d will be available after %.2f hrs\n", vehicle.ID, vehicle.AvailableTime)
+	logger.Debugf("Vehicle %d will be available after %.2f hrs", vehicle.ID, vehicle.AvailableTime)
 }

@@ -118,6 +118,8 @@ func main() {
 	// start loop
 	for len(packages) > 0 {
 
+		logger.Debugf("---- Starting new iteration with %d packages remaining ---", len(packages))
+
 		// generate combinations
 		combinations := combinator.GenerateCombinations(packages, maxLoad)
 
@@ -142,8 +144,10 @@ func main() {
 			return false
 		})
 
-		for _, pkg := range packages {
-			logger.Debugf("Remaining Package: %s", pkg.ID)
+		remainingIDs := make([]string, len(packages))
+		for i, pkg := range packages {
+			remainingIDs[i] = pkg.ID
 		}
+		logger.Debugf("Remaining Package IDs: %v", remainingIDs)
 	}
 }
