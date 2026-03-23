@@ -7,16 +7,14 @@ import (
 	"os"
 	"slices"
 
+	"github.com/ElyasAsmad/everestengineering2/internal/logger"
 	"github.com/ElyasAsmad/everestengineering2/internal/model"
+	"github.com/ElyasAsmad/everestengineering2/internal/parser"
 	"github.com/ElyasAsmad/everestengineering2/internal/shipping"
-	"github.com/ElyasAsmad/everestengineering2/pkg/combinator"
-	l "github.com/ElyasAsmad/everestengineering2/pkg/logger"
-	"github.com/ElyasAsmad/everestengineering2/pkg/parser"
-	s "github.com/ElyasAsmad/everestengineering2/pkg/shipper"
 )
 
 func main() {
-	logger := l.NewLogger()
+	logger := logger.NewLogger()
 
 	// TODO: maybe make the file name passable via arg
 	offers, err := parser.ParseOffersCSV("offers.csv")
@@ -119,7 +117,7 @@ func main() {
 	}
 
 	// fleet manager
-	shipper := s.NewShipper(noOfVehicles, maxSpeed)
+	shipper := shipping.NewShipper(noOfVehicles, maxSpeed)
 	deliveryResult := make([]model.DeliveryResult, 0)
 
 	// start loop
@@ -128,10 +126,10 @@ func main() {
 		logger.Debugf("---- %d packages remaining ---", len(packages))
 
 		// generate combinations
-		combinations := combinator.GenerateCombinations(packages, maxLoad)
+		combinations := shipping.GenerateCombinations(packages, maxLoad)
 
 		// get optimal shipment from generated combinations
-		op, err := combinator.GetOptimalShipment(combinations)
+		op, err := shipping.GetOptimalShipment(combinations)
 
 		if err != nil {
 			logger.Error("Error getting optimal shipment:", err)
