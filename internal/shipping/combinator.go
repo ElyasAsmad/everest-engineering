@@ -1,4 +1,4 @@
-package combinator
+package shipping
 
 import (
 	"fmt"

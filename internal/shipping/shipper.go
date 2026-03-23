@@ -1,11 +1,11 @@
-package shipper
+package shipping
 
 import (
 	"fmt"
 
+	"github.com/ElyasAsmad/everestengineering2/internal/logger"
 	"github.com/ElyasAsmad/everestengineering2/internal/model"
 	f "github.com/ElyasAsmad/everestengineering2/internal/utils"
-	l "github.com/ElyasAsmad/everestengineering2/pkg/logger"
 )
 
 type Vehicle struct {
@@ -52,7 +52,7 @@ func (s *Shipper) FastForwardAndGetVehicle() (*Vehicle, error) {
 }
 
 func (s *Shipper) ProcessShipment(shipment *model.PackageBundle) *[]model.DeliveryResult {
-	logger := l.NewLogger()
+	logger := logger.NewLogger()
 
 	// find the next vehicle (earliest available)
 	vehicle, err := s.FastForwardAndGetVehicle()
