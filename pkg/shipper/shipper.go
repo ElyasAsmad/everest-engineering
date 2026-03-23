@@ -51,23 +51,30 @@ func (s *Shipper) FastForwardAndGetVehicle() (*Vehicle, error) {
 	return nil, fmt.Errorf("no vehicle available after fast-forwarding")
 }
 
-func (s *Shipper) ProcessShipment(shipment *model.PackageBundle) {
+func (s *Shipper) ProcessShipment(shipment *model.PackageBundle) *[]model.DeliveryResult {
 	logger := l.NewLogger()
 
 	// find the next vehicle (earliest available)
 	vehicle, err := s.FastForwardAndGetVehicle()
 	if err != nil {
 		logger.Error("Error getting next vehicle:", err)
-		return
+		return nil
 	}
 	longestDistance := 0.0
 
 	logger.Debugf("Shipment assigned to Vehicle %d: Available Time %.2f", vehicle.ID, vehicle.AvailableTime)
 
-	for _, pkg := range shipment.Packages {
+	result := make([]model.DeliveryResult, len(shipment.Packages))
+
+	for i, pkg := range shipment.Packages {
 		deliveryTime := vehicle.AvailableTime + f.Truncate((pkg.DistanceKm/s.maxSpeed), 2)
 
 		logger.Debugf("Delivering %s: (%.2f + %.2f) %.2f hrs", pkg.ID, vehicle.AvailableTime, f.Truncate((pkg.DistanceKm/s.maxSpeed), 2), deliveryTime)
+
+		result[i] = model.DeliveryResult{
+			Package:      pkg,
+			DeliveryTime: deliveryTime,
+		}
 
 		if pkg.DistanceKm > longestDistance {
 			longestDistance = f.Truncate(pkg.DistanceKm, 2)
@@ -80,4 +87,6 @@ func (s *Shipper) ProcessShipment(shipment *model.PackageBundle) {
 	vehicle.AvailableTime = vehicle.AvailableTime + roundTripTime
 
 	logger.Debugf("Vehicle %d will be available after %.2f hrs", vehicle.ID, vehicle.AvailableTime)
+
+	return &result
 }
