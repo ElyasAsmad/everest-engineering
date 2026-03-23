@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"cmp"
 	"fmt"
 	"os"
 	"slices"
@@ -20,10 +21,16 @@ func main() {
 	offers, err := parser.ParseOffersCSV("offers.csv")
 	if err != nil {
 		logger.Error("Failed to parse CSV file: %v", err)
-		return
+		os.Exit(1)
 	}
 
 	logger.Debugf("Parsed Offers: %v", offers)
+
+	catalog, err := model.NewOfferCatalog(offers)
+	if err != nil {
+		logger.Error("Failed to create offer catalog: %v", err)
+		os.Exit(1)
+	}
 
 	// 1st scan: base cost, number of packages
 	var baseCost float64
@@ -112,6 +119,8 @@ func main() {
 
 	// fleet manager
 	shipper := s.NewShipper(noOfVehicles, maxSpeed)
+	deliveryResult := make([]model.DeliveryResult, len(packages))
+	deliveryIdx := 0
 
 	// start loop
 	for len(packages) > 0 {
@@ -131,7 +140,12 @@ func main() {
 
 		logger.Debugf("Optimal Shipment: %v, Total Weight: %f", op.Packages, op.TotalWeight)
 
-		shipper.ProcessShipment(op)
+		result := shipper.ProcessShipment(op)
+
+		for i := 0; i < len(*result); i++ {
+			deliveryResult[deliveryIdx] = (*result)[i]
+			deliveryIdx++
+		}
 
 		packages = slices.DeleteFunc(packages, func(p model.Package) bool {
 			for _, shippedPkg := range op.Packages {
@@ -148,4 +162,29 @@ func main() {
 		}
 		logger.Debugf("Remaining Package IDs: %v", remainingIDs)
 	}
+
+	// sort delivery results by package ID
+	slices.SortFunc(deliveryResult, func(a, b model.DeliveryResult) int {
+		return cmp.Compare(a.Package.ID, b.Package.ID)
+	})
+
+	for _, res := range deliveryResult {
+		pkg := res.Package
+
+		offer, qualifies, err := catalog.Apply(pkg.OfferCode, pkg.DistanceKm, pkg.WeightKg)
+		if err != nil {
+			logger.Fatalf("Error applying offer %s to package %s: %v", pkg.OfferCode, pkg.ID, err)
+		}
+
+		discount := 0.0
+		deliveryCost := baseCost + (pkg.WeightKg * 10) + (pkg.DistanceKm * 5)
+
+		if qualifies {
+			discount = (offer.Discount / 100.0) * deliveryCost
+			deliveryCost = deliveryCost - discount
+		}
+
+		logger.Printf("%s %.0f %.0f %.2f", pkg.ID, discount, deliveryCost, res.DeliveryTime)
+	}
+
 }
