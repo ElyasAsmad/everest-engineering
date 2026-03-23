@@ -14,7 +14,7 @@ run-built:
 	./$(APP_NAME) < $(INPUT)
 
 test:
-	go test ./...
+	go test -v ./...
 
 clean:
 	rm -f $(APP_NAME)
