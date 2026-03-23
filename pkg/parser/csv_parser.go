@@ -12,31 +12,26 @@ type ParsedOffer struct {
 	Offers []*model.OfferCSV
 }
 
-func ParseOffersCSV(fileName string) (*ParsedOffer, error) {
-	clientsFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, os.ModePerm)
+func ParseOffersCSV(fileName string) ([]*model.Offer, error) {
+	clientsFile, err := os.OpenFile(fileName, os.O_RDONLY, os.ModePerm)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to open CSV file: %w", err)
+		return nil, fmt.Errorf("failed to open CSV file: %w", err)
 	}
 	defer clientsFile.Close()
 
-	offers := []*model.OfferCSV{}
-
-	if err := gocsv.UnmarshalFile(clientsFile, &offers); err != nil {
-		return nil, fmt.Errorf("Failed to parse CSV file: %w", err)
+	var raw []*model.OfferCSV
+	if err := gocsv.UnmarshalFile(clientsFile, &raw); err != nil {
+		return nil, fmt.Errorf("failed to parse CSV file: %w", err)
 	}
 
-	return &ParsedOffer{Offers: offers}, nil
-}
-
-func (o *ParsedOffer) ConvertToOffer() []*model.Offer {
-	var convertedOffers []*model.Offer
-	for _, offer := range o.Offers {
-		// Perform conversion logic here
-		convertedOffers = append(convertedOffers, &model.Offer{
-			Code:       offer.Code,
-			Discount:   offer.Discount,
-			Constraint: offer.Distance + " && " + offer.Weight,
-		})
+	offers := make([]*model.Offer, len(raw))
+	for i, o := range raw {
+		offers[i] = &model.Offer{
+			Code:       o.Code,
+			Discount:   o.Discount,
+			Constraint: o.Distance + " && " + o.Weight,
+		}
 	}
-	return convertedOffers
+
+	return offers, nil
 }

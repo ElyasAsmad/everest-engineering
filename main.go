@@ -17,13 +17,11 @@ func main() {
 	logger := l.NewLogger()
 
 	// TODO: maybe make the file name passable via arg
-	parsed, err := parser.ParseOffersCSV("offers.csv")
+	offers, err := parser.ParseOffersCSV("offers.csv")
 	if err != nil {
 		logger.Error("Failed to parse CSV file: %v", err)
 		return
 	}
-
-	offers := parsed.ConvertToOffer()
 
 	logger.Debugf("Parsed Offers: %v", offers)
 
