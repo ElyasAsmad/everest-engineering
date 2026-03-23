@@ -116,7 +116,7 @@ func main() {
 	// start loop
 	for len(packages) > 0 {
 
-		logger.Debugf("---- Starting new iteration with %d packages remaining ---", len(packages))
+		logger.Debugf("---- %d packages remaining ---", len(packages))
 
 		// generate combinations
 		combinations := combinator.GenerateCombinations(packages, maxLoad)
