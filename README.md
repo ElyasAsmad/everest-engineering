@@ -8,10 +8,10 @@ This is [Everest Engineering](https://everest.engineering) assessment; a courier
 ![Sequence Diagram](https://cdn.elyasasmad.com/elyasasmad/ee-sequence-diagram.png)
 
 1. CSV Offer Catalog
-CSV file were chosen to define the offer catalog for its simplicity and ease of use. This allows non-technical users to easily add or modify offers using Office applications (Microsoft Excel / WPS Spreadsheet) without needing to change the code. I also considered using [AirTable](https://airtable.com) for a more user-friendly interface, but decided against it to keep the solution offline and self-contained as a CLI application. Maybe in the future, I can add support for fetching offers from an API or a database for more dynamic use cases.
+<p>CSV file were chosen to define the offer catalog for its simplicity and ease of use. This allows non-technical users to easily add or modify offers using Office applications (Microsoft Excel / WPS Spreadsheet) without needing to change the code. I also considered using [AirTable](https://airtable.com) for a more user-friendly interface, but decided against it to keep the solution offline and self-contained as a CLI application. In the future, I will add support for fetching offers from an API or a database to support more dynamic use cases.</p>
 
 2. Custom Expression Evaluator
-A mini expression compiler (lexer -> parser -> AST -> evaluator) was built (with the help of Claude) to handle the offer conditions parsing and evaluation from CSV, instead of hardcoding conditionals or using regex. This enables flexibility so offers can be added or modified with no code changes.
+<p>A mini expression compiler (lexer -> parser -> AST -> evaluator) was built (with the help of Claude) to handle the offer conditions parsing and evaluation from CSV, instead of hardcoding conditionals or using regex. This enables flexibility so offers can be added or modified with no code changes.</p>
 
 ## Setup
 1. Ensure you have Go installed on your machine. If you don't have Go installed, you can download it from [https://golang.org/dl/](https://golang.org/dl/).
@@ -37,10 +37,12 @@ OFR002,20,50 <= d <= 100, w < 100
 # add more offers here
 ```
 Explanation of the CSV columns:
-`code`: The offer code (e.g., `OFR001`, `OFR002`, etc.)
-`discount`: The discount percentage (0-100) (e.g., `10`, `20`, etc.)
-`distance`: The distance condition (e.g., `d < 200`, `50 <= d <= 100` etc.)
-`weight`: The weight condition (e.g., `w < 100`, `70 <= w <= 200` etc.)
+| Column | Description | Example |
+|--------|-------------|---------|
+| `code` | The offer code | `OFR001`, `OFR002` |
+| `discount` | The discount percentage (0-100) | `10`, `20` |
+| `distance` | The distance condition | `d < 200`, `50 <= d <= 100` |
+| `weight` | The weight condition | `w < 100`, `70 <= w <= 200` |
 
 To run the application, use the following command:
 ```bash
@@ -107,21 +109,27 @@ make coverage-html
 ## Assumptions and Trade-offs
 1. Custom Expression Evaluator
 I built a mini expression compiler (lexer -> parser -> AST -> evaluator) (with the help of Claude) to handle the offer conditions parsing and evaluation from CSV, instead of hardcoding conditionals or using regex. This enables flexibility so offers can be added or modified with no code changes.
-- Assumption: The conditions in the CSV will be simple expressions involving distance (`d`) and weight (`w`) with basic comparison operators (`<`, `<=`, `>`, `>=`) and logical `AND` / `&&`. No complex expressions or `OR` conditions are expected for now. Only 2 variables (`d` and `w`) are expected in the conditions.
-- Trade-off: More upfront code than a simple if/else but much more scalable for future offer additions & business rule changes. Also, grammar is easy to extend (e.g.: adding `OR` conditions, more complex expressions, etc.)
-- Motivation: I wanted to explore on building a simple compiler in Go and this seemed like a fun opportunity to do so. The package is also made to be reusable and can be extended for my other use cases in the future.
-- Next steps: Add more unit tests for the expression evaluator (to handle edge cases) and potentially open source it as a standalone package. Also, add support for other operators (e.g., `OR`, `!=`, etc.) and more complex expressions.
+| Aspect | Details |
+|--------|---------|
+| **Assumption** | Conditions in CSV will be simple expressions with distance (`d`) and weight (`w`), basic comparison operators (`<`, `<=`, `>`, `>=`), and logical `AND`/`&&`. No complex expressions, `OR` conditions, or additional variables expected. |
+| **Trade-off** | More upfront code than simple if/else, but significantly more scalable for future offer additions and business rule changes. Grammar is easy to extend (e.g., `OR` conditions, complex expressions). |
+| **Motivation** | Explore building a simple compiler in Go. Package designed to be reusable and extensible for future use cases. |
+| **Next Steps** | Add unit tests for expression evaluator edge cases. Consider open-sourcing as a standalone package. Add support for additional operators (`OR`, `!=`, etc.) and more complex expressions. |
 
 2. Package Dispatch Algorithm
 I implemented a brute-force combinator algorithm to find the optimal package combinations while respecting the weight constraints for each vehicle dispatch. However, this algorithm has a time complexity of $O(2^n)$ in the worst case scenario (assuming unlimited weight capacity).
-- Assumption: The number of packages per dispatch is expected to be small (e.g., less than 20), which makes the brute-force approach usable without significant performance issues. (At 20 packages, there are 1,048,576 combinations, which is a bit high but still manageable for a CLI application)
-- Trade-off: This approach guarantees the most optimal packing per trip (exact solution) at $O(2^n)$, which is acceptable for small $n$. However, for larger $n$ (e.g., 30+ : which would result in 1,073,741,824 combinations), this would become inefficient.
-- Next steps: In a real-world scenario with larger inputs, I would implement a more efficient algorithm such as the Dynamic Programming solution to the Knapsack problem which has a time complexity of $O(n \times W)$ where $W$ is the max weight capacity of the vehicle. This solves the problem of the exponential growth in combinations.
+| Aspect | Details |
+|--------|---------|
+| **Assumption** | The number of packages per dispatch is expected to be small (e.g., less than 20), which makes the brute-force approach usable without significant performance issues. At 20 packages, there are 1,048,576 combinations, which is acceptable for a CLI application. |
+| **Trade-off** | This approach guarantees the most optimal packing per trip (exact solution) at $O(2^n)$, which is acceptable for small $n$. However, for larger $n$ (e.g., 30+: 1,073,741,824 combinations), this becomes inefficient. |
+| **Next Steps** | In a real-world scenario with larger inputs, implement a more efficient algorithm such as Dynamic Programming solution to the Knapsack problem with time complexity of $O(n \times W)$ where $W$ is the max weight capacity of the vehicle. |
 
 3. In-Memory Data Handling
 The application processes all input data in-memory, which is suitable for small to medium-sized datasets.
-- Assumption: Since this is a CLI application, it's expected that the input data will be of small-medium size that can fit in memory.
-- Trade-off: This allows for a simpler code & faster execution for the expected use cases. The cost is that it may not scale well for very large inputs.
+| Aspect | Details |
+|--------|---------|
+| **Assumption** | Since this is a CLI application, it's expected that the input data will be of small-medium size that can fit in memory. |
+| **Trade-off** | This allows for a simpler code & faster execution for the expected use cases. The cost is that it may not scale well for very large inputs. |
 
 
 ## Author
