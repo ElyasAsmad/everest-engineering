@@ -80,6 +80,15 @@ func TestLexer_SingleEquals(t *testing.T) {
 	}
 }
 
+func TestLexer_InvalidAndOperator(t *testing.T) {
+	lexer := expr.NewLexer("d < 200 &! w > 50")
+
+	_, err := lexer.Tokenize()
+	if err == nil {
+		t.Fatal("expected error for invalid AND operator '&!', got nil")
+	}
+}
+
 // --- Parser + Evaluator tests ---
 
 type evalCase struct {
