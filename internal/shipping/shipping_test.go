@@ -157,6 +157,16 @@ func TestFilterOutPackages_AllShipped(t *testing.T) {
 
 // Tests for FastForwardAndGetVehicle function
 
+func TestFastForwardAndGetVehicle_NoVehicles(t *testing.T) {
+	s := &Shipper{
+		fleet: []Vehicle{},
+	}
+	_, err := s.FastForwardAndGetVehicle()
+	if err == nil {
+		t.Error("Expected error when no vehicles in fleet, got nil")
+	}
+}
+
 func TestFastForwardAndGetVehicle_ReturnsEarliestVehicle(t *testing.T) {
 	s := &Shipper{
 		fleet: []Vehicle{

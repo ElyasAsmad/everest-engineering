@@ -35,6 +35,10 @@ func NewShipper(noOfVehicles int, maxSpeed float64) *Shipper {
 }
 
 func (s *Shipper) FastForwardAndGetVehicle() (*Vehicle, error) {
+	if len(s.fleet) == 0 {
+		return nil, fmt.Errorf("no vehicles in the fleet")
+	}
+
 	earliestTime := s.fleet[0].AvailableTime
 	for _, vehicle := range s.fleet {
 		if vehicle.AvailableTime < earliestTime {
@@ -48,7 +52,8 @@ func (s *Shipper) FastForwardAndGetVehicle() (*Vehicle, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("no vehicle available after fast-forwarding")
+	// only reachable by miracle: e.g.: cosmic ray flips the bit
+	panic("unreachable code: should have returned a vehicle by now")
 }
 
 func (s *Shipper) ProcessShipment(shipment *model.PackageBundle) *[]model.DeliveryResult {
