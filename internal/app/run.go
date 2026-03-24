@@ -5,7 +5,6 @@ import (
 	"cmp"
 	"fmt"
 	"io"
-	"os"
 	"slices"
 	"strings"
 
@@ -15,13 +14,12 @@ import (
 	"github.com/ElyasAsmad/everestengineering2/internal/shipping"
 )
 
-func Run(in io.Reader, inputFile string) string {
+func Run(in io.Reader, inputFile string) (string, error) {
 	logger := logger.NewLogger()
 
 	offers, err := parser.ParseOffersCSV(inputFile)
 	if err != nil {
-		logger.Error("Failed to parse CSV file: %v", err)
-		os.Exit(1)
+		return "", fmt.Errorf("Failed to parse CSV file: %v", err)
 	}
 
 	var parsedOffers strings.Builder
@@ -33,8 +31,7 @@ func Run(in io.Reader, inputFile string) string {
 
 	catalog, err := model.NewOfferCatalog(offers)
 	if err != nil {
-		logger.Error("Failed to create offer catalog: %v", err)
-		os.Exit(1)
+		return "", fmt.Errorf("Failed to create offer catalog: %v", err)
 	}
 
 	// 1st scan: base cost, number of packages
@@ -55,14 +52,12 @@ func Run(in io.Reader, inputFile string) string {
 		n, err := fmt.Sscanf(line, "%f %d", &baseCost, &noOfPackages)
 
 		if err != nil || n != 2 {
-			logger.Error("Invalid input format. Expected: <baseCost> <noOfPackages>")
-			os.Exit(1)
+			return "", fmt.Errorf("invalid input format. Expected: <baseCost> <noOfPackages>")
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		logger.Error("Error reading base cost and number of packages:", err)
-		os.Exit(1)
+		return "", fmt.Errorf("error reading base cost and number of packages: %v", err)
 	}
 
 	logger.Debugf("Base Cost: %f", baseCost)
@@ -84,8 +79,7 @@ func Run(in io.Reader, inputFile string) string {
 			n, err := fmt.Sscanf(line, "%s %f %f %s", &id, &weight, &distance, &offerCode)
 
 			if err != nil || n != 4 {
-				logger.Error("Invalid package details format. Expected: <id> <weight> <distance> <offerCode>")
-				os.Exit(1)
+				return "", fmt.Errorf("invalid package details format. Expected: <id> <weight> <distance> <offerCode>")
 			}
 
 			logger.Debugf("Package ID: %s, Weight: %f, Distance: %f, Offer Code: %s", id, weight, distance, offerCode)
@@ -99,8 +93,7 @@ func Run(in io.Reader, inputFile string) string {
 		}
 
 		if err := scanner.Err(); err != nil {
-			logger.Error("Error reading package details:", err)
-			os.Exit(1)
+			return "", fmt.Errorf("error reading package details: %v", err)
 		}
 	}
 
@@ -110,16 +103,14 @@ func Run(in io.Reader, inputFile string) string {
 		n, err := fmt.Sscanf(line, "%d %f %f", &noOfVehicles, &maxSpeed, &maxLoad)
 
 		if err != nil || n != 3 {
-			logger.Error("Invalid vehicle details format. Expected: <noOfVehicles> <maxSpeed> <maxLoad>")
-			os.Exit(1)
+			return "", fmt.Errorf("invalid vehicle details format. Expected: <noOfVehicles> <maxSpeed> <maxLoad>")
 		}
 
 		logger.Debugf("Number of Vehicles: %d, Max Speed: %f, Max Load: %f", noOfVehicles, maxSpeed, maxLoad)
 	}
 
 	if err := scanner.Err(); err != nil {
-		logger.Error("Error reading vehicle details:", err)
-		os.Exit(1)
+		return "", fmt.Errorf("error reading vehicle details: %v", err)
 	}
 
 	// fleet manager
@@ -138,8 +129,7 @@ func Run(in io.Reader, inputFile string) string {
 		op, err := shipping.GetOptimalShipment(combinations)
 
 		if err != nil {
-			logger.Error("Error getting optimal shipment:", err)
-			os.Exit(1)
+			return "", fmt.Errorf("error getting optimal shipment: %v", err)
 		}
 
 		logger.Debugf("Optimal Shipment: %v, Total Weight: %f", op.Packages, op.TotalWeight)
@@ -170,7 +160,7 @@ func Run(in io.Reader, inputFile string) string {
 
 		offer, qualifies, err := catalog.Apply(pkg.OfferCode, pkg.DistanceKm, pkg.WeightKg)
 		if err != nil {
-			logger.Fatalf("Error applying offer %s to package %s: %v", pkg.OfferCode, pkg.ID, err)
+			return "", fmt.Errorf("error applying offer %s to package %s: %v", pkg.OfferCode, pkg.ID, err)
 		}
 
 		discount := 0.0
@@ -184,5 +174,5 @@ func Run(in io.Reader, inputFile string) string {
 		fmt.Fprintf(&output, "%s %.0f %.0f %.2f\n", pkg.ID, discount, deliveryCost, res.DeliveryTime)
 	}
 
-	return output.String()
+	return output.String(), nil
 }
