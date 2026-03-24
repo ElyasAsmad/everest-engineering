@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"strings"
 
 	"github.com/ElyasAsmad/everestengineering2/internal/logger"
 	"github.com/ElyasAsmad/everestengineering2/internal/model"
@@ -14,16 +15,32 @@ import (
 )
 
 func main() {
+	if len(os.Args) != 2 {
+		fmt.Println("Usage: go run main.go <input_file.csv>")
+		os.Exit(1)
+	}
+
+	inputFile := os.Args[1]
+	result := Run(inputFile)
+
+	fmt.Print(result)
+}
+
+func Run(inputFile string) string {
 	logger := logger.NewLogger()
 
-	// TODO: maybe make the file name passable via arg
-	offers, err := parser.ParseOffersCSV("offers.csv")
+	offers, err := parser.ParseOffersCSV(inputFile)
 	if err != nil {
 		logger.Error("Failed to parse CSV file: %v", err)
 		os.Exit(1)
 	}
 
-	logger.Debugf("Parsed Offers: %v", offers)
+	var parsedOffers strings.Builder
+	for _, offer := range offers {
+		fmt.Fprintf(&parsedOffers, "\tOffer Code: %s, Discount: %.2f%%, Constraint: %s\n",
+			offer.Code, offer.Discount, offer.Constraint)
+	}
+	logger.Debugf("Parsed Offers:\n%s", parsedOffers.String())
 
 	catalog, err := model.NewOfferCatalog(offers)
 	if err != nil {
@@ -152,6 +169,8 @@ func main() {
 		logger.Debugf("Remaining Package IDs: %v", remainingIDs)
 	}
 
+	var output strings.Builder
+
 	// sort delivery results by package ID
 	slices.SortFunc(deliveryResult, func(a, b model.DeliveryResult) int {
 		return cmp.Compare(a.Package.ID, b.Package.ID)
@@ -173,7 +192,8 @@ func main() {
 			deliveryCost = deliveryCost - discount
 		}
 
-		logger.Printf("%s %.0f %.0f %.2f", pkg.ID, discount, deliveryCost, res.DeliveryTime)
+		fmt.Fprintf(&output, "%s %.0f %.0f %.2f\n", pkg.ID, discount, deliveryCost, res.DeliveryTime)
 	}
 
+	return output.String()
 }
