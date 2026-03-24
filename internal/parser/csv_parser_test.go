@@ -71,6 +71,13 @@ OFR003,5,d > 150,w > 200`
 	}
 }
 
+func TestParsedOffersCSV_InvalidFileName(t *testing.T) {
+	_, err := parser.ParseOffersCSV("non_existent_file.csv")
+	if err == nil {
+		t.Fatal("expected error for non-existent file")
+	}
+}
+
 func TestParseOffersCSV_CSVWithLeadingSpace(t *testing.T) {
 	content := `code,discount,distance,weight
 OFR001,20, d < 100, w < 70
