@@ -158,6 +158,42 @@ OFR001,twenty,d < 100,w < 70`
 	}
 }
 
+func TestParseOffersCSV_InvalidCSVMissingOfferCode(t *testing.T) {
+	content := `code,discount,distance,weight
+,20,d < 100,w < 70`
+
+	tmpFile := createTempCSV(t, content)
+
+	_, err := parser.ParseOffersCSV(tmpFile)
+	if err == nil {
+		t.Fatal("expected error for invalid CSV (missing offer code)")
+	}
+}
+
+func TestParseOffersCSV_InvalidCSVDiscountOutOfUpperRange(t *testing.T) {
+	content := `code,discount,distance,weight
+OFR001,150,d < 100,w < 70`
+
+	tmpFile := createTempCSV(t, content)
+
+	_, err := parser.ParseOffersCSV(tmpFile)
+	if err == nil {
+		t.Fatal("expected error for invalid CSV (discount out of range)")
+	}
+}
+
+func TestParseOffersCSV_InvalidCSVDiscountOutOfLowerRange(t *testing.T) {
+	content := `code,discount,distance,weight
+OFR001,-10,d < 100,w < 70`
+
+	tmpFile := createTempCSV(t, content)
+
+	_, err := parser.ParseOffersCSV(tmpFile)
+	if err == nil {
+		t.Fatal("expected error for invalid CSV (discount out of range)")
+	}
+}
+
 func TestParseOffersCSV_NoConstraints(t *testing.T) {
 	content := `code,discount,distance,weight
 OFR001,20,,`
@@ -166,7 +202,7 @@ OFR001,20,,`
 
 	offers, err := parser.ParseOffersCSV(tmpFile)
 	if err != nil {
-		t.Fatal("expected error for invalid CSV")
+		t.Fatal("expected error for invalid CSV (no constraints)")
 	}
 
 	if len(offers) != 1 {

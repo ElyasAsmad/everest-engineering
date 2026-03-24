@@ -25,6 +25,10 @@ func ParseOffersCSV(fileName string) ([]*model.Offer, error) {
 		return nil, fmt.Errorf("failed to parse CSV file: %w", err)
 	}
 
+	if err := validateOfferCSV(raw); err != nil {
+		return nil, fmt.Errorf("invalid offer data: %w", err)
+	}
+
 	offers := make([]*model.Offer, len(raw))
 
 	for i, o := range raw {
@@ -36,6 +40,19 @@ func ParseOffersCSV(fileName string) ([]*model.Offer, error) {
 	}
 
 	return offers, nil
+}
+
+func validateOfferCSV(offers []*model.OfferCSV) error {
+	for _, offer := range offers {
+		if offer.Code == "" {
+			return fmt.Errorf("offer code is required")
+		}
+		if offer.Discount < 0 || offer.Discount > 100 {
+			return fmt.Errorf("discount must be between 0 and 100")
+		}
+	}
+
+	return nil
 }
 
 func buildConstraint(distance, weight string) string {
