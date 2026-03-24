@@ -168,9 +168,11 @@ func Run(in io.Reader, inputFile string) (string, error) {
 			return "", fmt.Errorf("error applying offer %s to package %s: %v", pkg.OfferCode, pkg.ID, err)
 		}
 
+		// by default, no discount
 		discount := 0.0
 		deliveryCost := baseCost + (pkg.WeightKg * 10) + (pkg.DistanceKm * 5)
 
+		// if qualifies for discount, then calculate discount and final delivery cost
 		if qualifies {
 			discount = (offer.Discount / 100.0) * deliveryCost
 			deliveryCost = deliveryCost - discount
