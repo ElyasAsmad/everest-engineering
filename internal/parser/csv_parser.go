@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/ElyasAsmad/everestengineering2/internal/model"
 	"github.com/gocarina/gocsv"
@@ -26,10 +27,13 @@ func ParseOffersCSV(fileName string) ([]*model.Offer, error) {
 
 	offers := make([]*model.Offer, len(raw))
 	for i, o := range raw {
+		distance := strings.TrimSpace(o.Distance)
+		weight := strings.TrimSpace(o.Weight)
+
 		offers[i] = &model.Offer{
 			Code:       o.Code,
 			Discount:   o.Discount,
-			Constraint: o.Distance + " && " + o.Weight,
+			Constraint: distance + " && " + weight,
 		}
 	}
 
