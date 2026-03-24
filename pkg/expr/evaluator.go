@@ -52,6 +52,8 @@ func Evaluate(node Node, ctx Context) (bool, error) {
 			return false, nil
 		}
 		return applyOp(mid, n.Op2, right)
+	case *BoolNode:
+		return n.Value, nil
 	default:
 		return false, fmt.Errorf("evaluate: unexpected node type %T", node)
 	}

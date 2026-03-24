@@ -99,6 +99,13 @@ func (a *AndNode) String() string {
 	return fmt.Sprintf("(%s && %s)", a.Left, a.Right)
 }
 
+type BoolNode struct{ Value bool }
+
+func (b *BoolNode) node() {}
+func (b *BoolNode) String() string {
+	return strconv.FormatBool(b.Value)
+}
+
 // helpers
 func Dump(n Node, indent int) string {
 	prefix := strings.Repeat(" ", indent)
@@ -113,6 +120,8 @@ func Dump(n Node, indent int) string {
 		return fmt.Sprintf("%sChainedCompare(%s, %s)\n%s%s%s", prefix, v.Op1, v.Op2, Dump(v.Left, indent+1), Dump(v.Mid, indent+1), Dump(v.Right, indent+1))
 	case *AndNode:
 		return fmt.Sprintf("%sAnd\n%s%s", prefix, Dump(v.Left, indent+1), Dump(v.Right, indent+1))
+	case *BoolNode:
+		return fmt.Sprintf("%sBool(%s)\n", prefix, v)
 	default:
 		return fmt.Sprintf("%sUnknown(%T)\n", prefix, n)
 	}
