@@ -2,6 +2,7 @@ CSV_FILE=offers.csv
 APP_NAME=app
 CMD_PATH=./cmd/app
 INPUT=input.txt
+PKGS := $(shell go list ./internal/... | grep -v '/internal/app$$' | grep -v '/internal/model$$' | grep -v '/internal/logger$$')
 
 .PHONY: run build clean test
 
@@ -17,8 +18,23 @@ build:
 run-built:
 	./$(APP_NAME) $(CSV_FILE)
 
-test:
-	go test -v ./...
+test: test-unit
+
+test-unit:
+	go test -v $(PKGS) -short
+
+test-integration:
+	go test -v ./test/integration -tags=integration
+
+test-all:
+	go test -v $(PKGS) -tags=integration
+
+coverage:
+	go test $(PKGS) -coverprofile=coverage.out
+
+coverage-html:
+	go tool cover -html=coverage.out
 
 clean:
+	rm -f coverage.out
 	rm -f $(APP_NAME)
