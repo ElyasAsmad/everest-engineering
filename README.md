@@ -5,7 +5,7 @@ This is [Everest Engineering](https://everest.engineering) assessment; a courier
 
 ## Architecture & Design Decisions
 
-![Sequence Diagram](https://cdn.elyasasmad.com/elyasasmad/ee-sequence-diagram.png)
+![Sequence Diagram](https://cdn.elyasasmad.com/elyasasmad/ee-sequence-diagram-latest.png)
 
 1. CSV Offer Catalog
 <p>CSV file were chosen to define the offer catalog for its simplicity and ease of use. This allows non-technical users to easily add or modify offers using Office applications (Microsoft Excel / WPS Spreadsheet) without needing to change the code. I also considered using [AirTable](https://airtable.com) for a more user-friendly interface, but decided against it to keep the solution offline and self-contained as a CLI application. In the future, I will add support for fetching offers from an API or a database to support more dynamic use cases.</p>
