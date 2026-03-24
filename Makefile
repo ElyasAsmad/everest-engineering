@@ -6,7 +6,7 @@ INPUT=input.txt
 .PHONY: run build clean test
 
 run-mock:
-	go run $(CMD_PATH) $(CSV_FILE) < $(INPUT)
+	EE_LOG_LEVEL=debug go run $(CMD_PATH) $(CSV_FILE) < $(INPUT)
 
 run:
 	go run $(CMD_PATH) $(CSV_FILE)
