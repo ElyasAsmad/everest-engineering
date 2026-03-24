@@ -108,7 +108,7 @@ make coverage-html
 
 ## Assumptions and Trade-offs
 1. Custom Expression Evaluator
-I built a mini expression compiler (lexer -> parser -> AST -> evaluator) (with the help of Claude) to handle the offer conditions parsing and evaluation from CSV, instead of hardcoding conditionals or using regex. This enables flexibility so offers can be added or modified with no code changes.
+<p>I built a mini expression compiler (lexer -> parser -> AST -> evaluator) (with the help of Claude) to handle the offer conditions parsing and evaluation from CSV, instead of hardcoding conditionals or using regex. This enables flexibility so offers can be added or modified with no code changes.</p>
 
 | Aspect | Details |
 |--------|---------|
@@ -118,7 +118,7 @@ I built a mini expression compiler (lexer -> parser -> AST -> evaluator) (with t
 | **Next Steps** | Add unit tests for expression evaluator edge cases. Consider open-sourcing as a standalone package. Add support for additional operators (`OR`, `!=`, etc.) and more complex expressions. |
 
 2. Package Dispatch Algorithm
-I implemented a brute-force combinator algorithm to find the optimal package combinations while respecting the weight constraints for each vehicle dispatch. However, this algorithm has a time complexity of $O(2^n)$ in the worst case scenario (assuming unlimited weight capacity).
+<p>I implemented a brute-force combinator algorithm to find the optimal package combinations while respecting the weight constraints for each vehicle dispatch. However, this algorithm has a time complexity of $O(2^n)$ in the worst case scenario (assuming unlimited weight capacity).</p>
 
 | Aspect | Details |
 |--------|---------|
@@ -127,7 +127,7 @@ I implemented a brute-force combinator algorithm to find the optimal package com
 | **Next Steps** | In a real-world scenario with larger inputs, implement a more efficient algorithm such as Dynamic Programming solution to the Knapsack problem with time complexity of $O(n \times W)$ where $W$ is the max weight capacity of the vehicle. |
 
 3. In-Memory Data Handling
-The application processes all input data in-memory, which is suitable for small to medium-sized datasets.
+<p>The application processes all input data in-memory, which is suitable for small to medium-sized datasets.</p>
 
 | Aspect | Details |
 |--------|---------|
