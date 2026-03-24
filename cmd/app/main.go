@@ -12,8 +12,7 @@ func main() {
 	logger := logger.NewLogger()
 
 	if len(os.Args) != 2 {
-		fmt.Println("Usage: go run main.go <input_file.csv>")
-		os.Exit(1)
+		logger.Fatal("Usage: go run main.go <input_file.csv>")
 	}
 
 	inputFile := os.Args[1]
