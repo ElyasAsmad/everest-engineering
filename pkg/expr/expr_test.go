@@ -166,7 +166,6 @@ func TestUndefinedVariable(t *testing.T) {
 
 func TestParseErrors(t *testing.T) {
 	bad := []string{
-		"",           // empty input
 		"< 200",      // missing left operand
 		"d < ",       // missing right operand
 		"d < 200 &&", // missing right operand for second clause

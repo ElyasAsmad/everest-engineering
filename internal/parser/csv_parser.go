@@ -26,16 +26,30 @@ func ParseOffersCSV(fileName string) ([]*model.Offer, error) {
 	}
 
 	offers := make([]*model.Offer, len(raw))
-	for i, o := range raw {
-		distance := strings.TrimSpace(o.Distance)
-		weight := strings.TrimSpace(o.Weight)
 
+	for i, o := range raw {
 		offers[i] = &model.Offer{
 			Code:       o.Code,
 			Discount:   o.Discount,
-			Constraint: distance + " && " + weight,
+			Constraint: buildConstraint(o.Distance, o.Weight),
 		}
 	}
 
 	return offers, nil
+}
+
+func buildConstraint(distance, weight string) string {
+	distance = strings.TrimSpace(distance)
+	weight = strings.TrimSpace(weight)
+
+	switch {
+	case distance != "" && weight != "":
+		return fmt.Sprintf("%s && %s", distance, weight)
+	case distance != "":
+		return distance
+	case weight != "":
+		return weight
+	default:
+		return ""
+	}
 }
