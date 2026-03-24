@@ -19,7 +19,7 @@ func main() {
 	inputFile := os.Args[1]
 	result, err := app.Run(os.Stdin, inputFile)
 	if err != nil {
-		logger.Fatalf("Application error: %v", err)
+		logger.Fatal(err)
 	}
 
 	fmt.Print(result)
