@@ -14,7 +14,7 @@ func main() {
 	}
 
 	inputFile := os.Args[1]
-	result := app.Run(inputFile)
+	result := app.Run(os.Stdin, inputFile)
 
 	fmt.Print(result)
 }

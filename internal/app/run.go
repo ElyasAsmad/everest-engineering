@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"cmp"
 	"fmt"
+	"io"
 	"os"
 	"slices"
 	"strings"
@@ -14,7 +15,7 @@ import (
 	"github.com/ElyasAsmad/everestengineering2/internal/shipping"
 )
 
-func Run(inputFile string) string {
+func Run(in io.Reader, inputFile string) string {
 	logger := logger.NewLogger()
 
 	offers, err := parser.ParseOffersCSV(inputFile)
