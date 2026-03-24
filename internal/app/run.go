@@ -54,6 +54,8 @@ func Run(in io.Reader, inputFile string) (string, error) {
 		if err != nil || n != 2 {
 			return "", fmt.Errorf("invalid input format. Expected: <baseCost> <noOfPackages>")
 		}
+	} else {
+		return "", fmt.Errorf("failed to read base cost and number of packages")
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -90,6 +92,8 @@ func Run(in io.Reader, inputFile string) (string, error) {
 				DistanceKm: distance,
 				OfferCode:  offerCode,
 			}
+		} else {
+			return "", fmt.Errorf("failed to read package details")
 		}
 
 		if err := scanner.Err(); err != nil {
@@ -107,6 +111,8 @@ func Run(in io.Reader, inputFile string) (string, error) {
 		}
 
 		logger.Debugf("Number of Vehicles: %d, Max Speed: %f, Max Load: %f", noOfVehicles, maxSpeed, maxLoad)
+	} else {
+		return "", fmt.Errorf("failed to read vehicle details")
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -119,7 +125,6 @@ func Run(in io.Reader, inputFile string) (string, error) {
 
 	// start loop
 	for len(packages) > 0 {
-
 		logger.Debugf("---- %d packages remaining ---", len(packages))
 
 		// generate combinations
