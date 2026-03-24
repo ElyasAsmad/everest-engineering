@@ -109,6 +109,7 @@ make coverage-html
 ## Assumptions and Trade-offs
 1. Custom Expression Evaluator
 I built a mini expression compiler (lexer -> parser -> AST -> evaluator) (with the help of Claude) to handle the offer conditions parsing and evaluation from CSV, instead of hardcoding conditionals or using regex. This enables flexibility so offers can be added or modified with no code changes.
+
 | Aspect | Details |
 |--------|---------|
 | **Assumption** | Conditions in CSV will be simple expressions with distance (`d`) and weight (`w`), basic comparison operators (`<`, `<=`, `>`, `>=`), and logical `AND`/`&&`. No complex expressions, `OR` conditions, or additional variables expected. |
@@ -118,6 +119,7 @@ I built a mini expression compiler (lexer -> parser -> AST -> evaluator) (with t
 
 2. Package Dispatch Algorithm
 I implemented a brute-force combinator algorithm to find the optimal package combinations while respecting the weight constraints for each vehicle dispatch. However, this algorithm has a time complexity of $O(2^n)$ in the worst case scenario (assuming unlimited weight capacity).
+
 | Aspect | Details |
 |--------|---------|
 | **Assumption** | The number of packages per dispatch is expected to be small (e.g., less than 20), which makes the brute-force approach usable without significant performance issues. At 20 packages, there are 1,048,576 combinations, which is acceptable for a CLI application. |
@@ -126,6 +128,7 @@ I implemented a brute-force combinator algorithm to find the optimal package com
 
 3. In-Memory Data Handling
 The application processes all input data in-memory, which is suitable for small to medium-sized datasets.
+
 | Aspect | Details |
 |--------|---------|
 | **Assumption** | Since this is a CLI application, it's expected that the input data will be of small-medium size that can fit in memory. |
