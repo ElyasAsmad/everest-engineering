@@ -7,7 +7,7 @@ PKGS := $(shell go list ./internal/... | grep -v '/internal/app$$' | grep -v '/i
 .PHONY: run build clean test
 
 run-mock:
-	EE_LOG_LEVEL=debug cat $(INPUT) | go run $(CMD_PATH) $(CSV_FILE)
+	cat $(INPUT) | EE_LOG_LEVEL=debug go run $(CMD_PATH) $(CSV_FILE)
 
 run:
 	go run $(CMD_PATH) $(CSV_FILE)
