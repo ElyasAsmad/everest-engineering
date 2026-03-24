@@ -46,7 +46,7 @@ func Run(in io.Reader, inputFile string) string {
 	var maxSpeed float64
 	var maxLoad float64
 
-	scanner := bufio.NewScanner(os.Stdin)
+	scanner := bufio.NewScanner(in)
 
 	if scanner.Scan() {
 		line := scanner.Text()
