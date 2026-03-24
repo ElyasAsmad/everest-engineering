@@ -1,0 +1,2 @@
+# Exclude generated files and test coverage reports
+coverage.out
