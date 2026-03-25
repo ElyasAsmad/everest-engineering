@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"io"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/ElyasAsmad/everestengineering2/internal/logger"
 	"github.com/ElyasAsmad/everestengineering2/internal/model"
 	"github.com/ElyasAsmad/everestengineering2/internal/parser"
 	"github.com/ElyasAsmad/everestengineering2/internal/shipping"
+	"github.com/shopspring/decimal"
 )
 
 func Run(in io.Reader, inputFile string) (string, error) {
@@ -35,7 +37,7 @@ func Run(in io.Reader, inputFile string) (string, error) {
 	}
 
 	// 1st scan: base cost, number of packages
-	var baseCost float64
+	var baseCost decimal.Decimal
 	var noOfPackages int
 
 	// 2nd scan: no of vehicles, max speed, max load
@@ -49,11 +51,23 @@ func Run(in io.Reader, inputFile string) (string, error) {
 		line := scanner.Text()
 
 		// read base cost, no of packages
-		n, err := fmt.Sscanf(line, "%f %d", &baseCost, &noOfPackages)
-
-		if err != nil || n != 2 {
+		parts := strings.Fields(line)
+		if len(parts) != 2 {
 			return "", fmt.Errorf("invalid input format. Expected: <baseCost> <noOfPackages>")
 		}
+
+		parsedBaseCost, err := decimal.NewFromString(parts[0])
+		if err != nil {
+			return "", fmt.Errorf("invalid input format. Expected: <baseCost> <noOfPackages>")
+		}
+
+		parsedNoOfPackages, err := strconv.Atoi(parts[1])
+		if err != nil {
+			return "", fmt.Errorf("invalid input format. Expected: <baseCost> <noOfPackages>")
+		}
+
+		baseCost = parsedBaseCost
+		noOfPackages = parsedNoOfPackages
 	} else {
 		return "", fmt.Errorf("failed to read base cost and number of packages")
 	}
@@ -62,7 +76,7 @@ func Run(in io.Reader, inputFile string) (string, error) {
 		return "", fmt.Errorf("error reading base cost and number of packages: %v", err)
 	}
 
-	logger.Debugf("Base Cost: %f", baseCost)
+	logger.Debugf("Base Cost: %s", baseCost.String())
 	logger.Debugf("Number of Packages: %d", noOfPackages)
 
 	packages := make([]model.Package, noOfPackages)
@@ -169,16 +183,27 @@ func Run(in io.Reader, inputFile string) (string, error) {
 		}
 
 		// by default, no discount
-		discount := 0.0
-		deliveryCost := baseCost + (pkg.WeightKg * 10) + (pkg.DistanceKm * 5)
+		discount := decimal.Zero
+		deliveryCost := baseCost.
+			Add(decimal.NewFromFloat(pkg.WeightKg).Mul(decimal.NewFromInt(10))).
+			Add(decimal.NewFromFloat(pkg.DistanceKm).Mul(decimal.NewFromInt(5)))
 
 		// if qualifies for discount, then calculate discount and final delivery cost
 		if qualifies {
-			discount = (offer.Discount / 100.0) * deliveryCost
-			deliveryCost = deliveryCost - discount
+			discount = decimal.NewFromFloat(offer.Discount).
+				Div(decimal.NewFromInt(100)).
+				Mul(deliveryCost)
+			deliveryCost = deliveryCost.Sub(discount)
 		}
 
-		fmt.Fprintf(&output, "%s %.0f %.0f %.2f\n", pkg.ID, discount, deliveryCost, res.DeliveryTime)
+		fmt.Fprintf(
+			&output,
+			"%s %s %s %.2f\n",
+			pkg.ID,
+			discount.Round(0).StringFixed(0),
+			deliveryCost.Round(0).StringFixed(0),
+			res.DeliveryTime,
+		)
 	}
 
 	return output.String(), nil
