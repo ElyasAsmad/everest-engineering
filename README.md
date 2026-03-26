@@ -134,6 +134,14 @@ make coverage-html
 | **Assumption** | Since this is a CLI application, it's expected that the input data will be of small-medium size that can fit in memory. |
 | **Trade-off** | This allows for a simpler code & faster execution for the expected use cases. The cost is that it may not scale well for very large inputs. |
 
+4. Monetary Calculations
+<p>Monetary values are handled using the <code>shopspring/decimal</code> package to ensure precision and avoid floating-point errors. Normally, using `float64` for monetary calculations can lead to precision issues due to the way floating-point arithmetic works in computers. By using a decimal package, we can ensure that all financial calculations are accurate and consistent, which is crucial for a courier service application where cost calculations are a core functionality.</p>
+
+| Aspect | Details |
+|--------|---------|
+| **Assumption** | The application requires precise monetary calculations for delivery costs and discounts. |
+| **Trade-off** | Using a decimal package adds a dependency and may have some performance overhead compared to using `float64`, but it ensures accuracy in financial calculations which is critical for a courier service application. |
+
 
 ## Author
 - [Elyas Asmad](https://github.com/ElyasAsmad)
